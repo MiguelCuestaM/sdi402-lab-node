@@ -9,22 +9,26 @@ module.exports = function(app, swig, gestorBD) {
         },{
             "nombre" : "Uptown funk",
             "precio" : "1.1"
-        }]
+        }];
 
         let respuesta = swig.renderFile('views/btienda.html', {
             vendedor: 'Tienda de canciones',
             canciones: canciones
-        })
+        });
 
         res.send(respuesta);
     });
 
     app.get('/canciones/agregar', function (req, res) {
+        if ( req.session.usuario == null){
+            res.redirect("/tienda");
+            return;
+        };
         let respuesta = swig.renderFile('views/bagregar.html', {
 
         });
         res.send(respuesta);
-    })
+    });
 
     app.get('/suma', function(req, res) {
         let respuesta = parseInt(req.query.num1) + parseInt(req.query.num2);
@@ -43,11 +47,15 @@ module.exports = function(app, swig, gestorBD) {
     });
 
     app.post("/cancion", function(req, res) {
+        if ( req.session.usuario == null){
+            res.redirect("/tienda");
+            return;
+        }
         let cancion = {
             nombre : req.body.nombre,
             genero : req.body.genero,
             precio : req.body.precio
-        }
+        };
         // Conectarse
         gestorBD.insertarCancion(cancion, function(id){
             if (id == null) {
